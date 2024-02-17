@@ -29,12 +29,15 @@ namespace ImageResizeWebApp.Helpers
         public static async Task<bool> UploadFileToStorage(Stream fileStream, string fileName,
                                                             AzureStorageConfig _storageConfig)
         {
+            // Create a new file name with the desired format
+            string newFileName = DateTime.Now.ToString("/yyyy/MM/dd-HH-mm-ss") + Path.GetExtension(fileName);
+            
             // Create a URI to the blob
             Uri blobUri = new Uri("https://" +
                                   _storageConfig.AccountName +
                                   ".blob.core.windows.net/" +
                                   _storageConfig.ImageContainer +
-                                  "/" + fileName);
+                                  "/" + newFileName);
 
             // Create StorageSharedKeyCredentials object by reading
             // the values from the configuration (appsettings.json)
