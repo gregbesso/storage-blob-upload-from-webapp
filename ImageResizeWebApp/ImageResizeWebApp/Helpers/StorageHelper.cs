@@ -30,7 +30,7 @@ namespace ImageResizeWebApp.Helpers
                                                             AzureStorageConfig _storageConfig)
         {
             // Create a new file name with the desired format
-            string newFileName = DateTime.Now.ToString("yyyy/MM/dd-HH-mm-ss") + Path.GetExtension(fileName);
+            string newFileName = DateTime.Now.ToString("yyyy/MM/yyyy-MM-dd-HH-mm-ss") + Path.GetExtension(fileName);
             
             // Create a URI to the blob
             Uri blobUri = new Uri("https://" +
