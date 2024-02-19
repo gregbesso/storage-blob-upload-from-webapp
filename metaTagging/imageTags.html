@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Gallery</title>
+    <style>
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+	    padding: 10px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+
+
+</head>
+<body>
+    <div class="image-container"></div>
+    <div class="tag-container" style="display: none;">
+        <input type="text" id="tag-input" placeholder="Enter tags">
+        <button id="save-button">Save</button>
+    </div>
+    <script>
+        $(document).ready(function() {
+	    var availableTags = ["family", "travel", "work", "friends", "nature"];
+	    var imageTags = {};
+	    var today = new Date();
+	    var currentYear = today.getFullYear();
+	    var currentMonth = today.getMonth() + 1;
+	    var currentDay = today.getDate();
+	    var currentFilename;
+	    $.getJSON('https://gregbwebstorage24sa.blob.core.windows.net/metadata/metaIndex.json', function(data) {
+	        $.each(data, function(index, image) {
+	            if (image.year === currentYear && image.month === currentMonth && image.day === currentDay) {
+	                var img = $('<img src="https://gregbwebstorage24sa.blob.core.windows.net/thumbnails/' + image.filename + '" class="image">');
+	                img.data("filename", image.filename);
+	                $('.image-container').append(img);
+	            }
+	        });
+	        $(".image").on("click", function() {
+		    currentFilename = $(this).data("filename");
+		    $("#tag-input").val(imageTags[currentFilename] || "");
+		    $(".tag-container").show();
+		    $("#tag-input").focus();
+		});
+	    });
+	
+	    $("#tag-input").autocomplete({
+	        source: function(request, response) {
+	            var terms = request.term.split(/,\s*/);
+	            var term = terms.pop();
+	            response($.ui.autocomplete.filter(availableTags, term));
+	        },
+	        focus: function() {
+	            return false;
+	        },
+	        select: function(event, ui) {
+	            var terms = this.value.split(/,\s*/);
+	            terms.pop();
+	            terms.push(ui.item.value);
+	            terms.push("");
+	            this.value = terms.join(", ");
+	            return false;
+	        }
+	    });
+	
+	    $("#save-button").on("click", function() {
+		    var tags = $("#tag-input").val().split(",");
+		    tags = tags.map(function(tag) {
+		        return tag.trim();
+		    });
+		    imageTags[currentFilename] = tags.join(", ");
+		    console.log("Filename: " + currentFilename);
+		    console.log("Tags: " + imageTags[currentFilename]);
+		    // Save the tags to Azure Blob Storage
+		    // ...
+		    $(".tag-container").hide();
+		    $("#tag-input").val("");
+		
+		    // Create the JSON object
+		    var imageTagsJSON = JSON.stringify(imageTags);
+		    console.log(imageTagsJSON);
+		});
+	});
+    </script>
+</body>
+</html>
