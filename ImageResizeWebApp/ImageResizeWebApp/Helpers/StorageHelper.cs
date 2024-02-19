@@ -50,6 +50,9 @@ namespace ImageResizeWebApp.Helpers
             // Upload the file
             await blobClient.UploadAsync(fileStream);
 
+            // Introduce a one-second pause between each image upload
+            await Task.Delay(1000);
+
             return await Task.FromResult(true);
         }
 
